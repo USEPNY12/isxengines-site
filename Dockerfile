@@ -24,9 +24,13 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 777 /var/www/html/assets/uploads \
     && chmod +x /var/www/html/docker-entrypoint.sh
 
-# Create MySQL data directory
-RUN mkdir -p /var/lib/mysql /run/mysqld \
-    && chown -R mysql:mysql /var/lib/mysql /run/mysqld
+# Initialize MySQL data directory at build time (fresh)
+RUN rm -rf /var/lib/mysql/* && \
+    mkdir -p /var/lib/mysql /run/mysqld && \
+    chown -R mysql:mysql /var/lib/mysql /run/mysqld && \
+    chmod 755 /var/lib/mysql /run/mysqld && \
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql 2>/dev/null || \
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
 EXPOSE 80
 

@@ -1,58 +1,48 @@
 #!/bin/bash
 set -e
 
-echo "Starting ISX Engines..."
+echo "=== Starting ISX Engines ==="
 
-# Initialize MySQL data directory if empty
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Initializing MariaDB data directory..."
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql 2>/dev/null || mariadb-install-db --user=mysql --datadir=/var/lib/mysql 2>/dev/null || true
-fi
-
-# Ensure proper permissions
+# Ensure MySQL directories have correct permissions
 chown -R mysql:mysql /var/lib/mysql /run/mysqld 2>/dev/null || true
+chmod 755 /run/mysqld 2>/dev/null || true
 
-# Start MariaDB in background
+# Start MariaDB
 echo "Starting MariaDB..."
-mysqld_safe --skip-grant-tables &
+mysqld_safe &
 
 # Wait for MySQL to be ready
-echo "Waiting for MariaDB to be ready..."
-for i in {1..60}; do
+echo "Waiting for MariaDB..."
+for i in $(seq 1 60); do
     if mysqladmin ping --silent 2>/dev/null; then
         echo "MariaDB is ready!"
         break
     fi
+    if [ "$i" -eq 60 ]; then
+        echo "ERROR: MariaDB failed to start!"
+        exit 1
+    fi
     sleep 1
 done
 
-# Set up grants (since we started with skip-grant-tables)
-mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '';" 2>/dev/null || true
-mysql -e "CREATE USER IF NOT EXISTS 'isxengines_user'@'localhost' IDENTIFIED BY 'ISXEngines2026!';" 2>/dev/null || true
-
-# Check if database exists, if not create it
+# Initialize database if needed
 if ! mysql -e "USE isxengines_db" 2>/dev/null; then
-    echo "Initializing database..."
+    echo "Creating database..."
     mysql -e "CREATE DATABASE isxengines_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-    mysql -e "GRANT ALL PRIVILEGES ON isxengines_db.* TO 'isxengines_user'@'localhost';"
-    mysql -e "GRANT ALL PRIVILEGES ON isxengines_db.* TO 'root'@'localhost';"
+    mysql -e "CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '';"
+    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;"
+    mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;"
     mysql -e "FLUSH PRIVILEGES;"
     mysql isxengines_db < /var/www/html/database/init.sql
-    echo "Database initialized successfully!"
+    echo "Database initialized!"
 else
-    # Check if tables exist
     TABLE_COUNT=$(mysql -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='isxengines_db';" 2>/dev/null || echo "0")
     if [ "$TABLE_COUNT" -lt "5" ]; then
-        echo "Database exists but tables missing. Re-initializing..."
-        mysql -e "GRANT ALL PRIVILEGES ON isxengines_db.* TO 'isxengines_user'@'localhost';" 2>/dev/null || true
-        mysql -e "GRANT ALL PRIVILEGES ON isxengines_db.* TO 'root'@'localhost';" 2>/dev/null || true
-        mysql -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+        echo "Re-initializing tables..."
         mysql isxengines_db < /var/www/html/database/init.sql
-        echo "Tables created successfully!"
+        echo "Tables created!"
     fi
 fi
 
 echo "Starting Apache..."
-# Start Apache in foreground
 exec apache2-foreground
