@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emission_standard = trim($_POST['emission_standard'] ?? '');
     $key_features = trim($_POST['key_features'] ?? '');
     $common_problems = trim($_POST['common_problems'] ?? '');
+    $price = floatval($_POST['price'] ?? 16500);
     $is_published = isset($_POST['is_published']) ? 1 : 0;
     $featured_image = trim($_POST['featured_image'] ?? '');
     
@@ -53,12 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = '<div class="alert alert-danger">Title is required.</div>';
     } else {
         if ($id > 0) {
-            $stmt = $db->prepare("UPDATE engines SET title=?, slug=?, category_id=?, meta_title=?, meta_description=?, h1_title=?, content=?, excerpt=?, featured_image=?, years_produced=?, displacement=?, horsepower=?, torque=?, ecm_code=?, fuel_type=?, bore_stroke=?, configuration=?, emission_standard=?, key_features=?, common_problems=?, is_published=? WHERE id=?");
-            $stmt->execute([$title, $slug, $category_id ?: null, $meta_title, $meta_description, $h1_title, $content, $excerpt, $featured_image, $years_produced, $displacement, $horsepower, $torque, $ecm_code, $fuel_type, $bore_stroke, $configuration, $emission_standard, $key_features, $common_problems, $is_published, $id]);
+            $stmt = $db->prepare("UPDATE engines SET title=?, slug=?, category_id=?, meta_title=?, meta_description=?, h1_title=?, content=?, excerpt=?, featured_image=?, years_produced=?, displacement=?, horsepower=?, torque=?, ecm_code=?, fuel_type=?, bore_stroke=?, configuration=?, emission_standard=?, key_features=?, common_problems=?, price=?, is_published=? WHERE id=?");
+            $stmt->execute([$title, $slug, $category_id ?: null, $meta_title, $meta_description, $h1_title, $content, $excerpt, $featured_image, $years_produced, $displacement, $horsepower, $torque, $ecm_code, $fuel_type, $bore_stroke, $configuration, $emission_standard, $key_features, $common_problems, $price, $is_published, $id]);
             $message = '<div class="alert alert-success">Engine page updated!</div>';
         } else {
-            $stmt = $db->prepare("INSERT INTO engines (title, slug, category_id, meta_title, meta_description, h1_title, content, excerpt, featured_image, years_produced, displacement, horsepower, torque, ecm_code, fuel_type, bore_stroke, configuration, emission_standard, key_features, common_problems, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$title, $slug, $category_id ?: null, $meta_title, $meta_description, $h1_title, $content, $excerpt, $featured_image, $years_produced, $displacement, $horsepower, $torque, $ecm_code, $fuel_type, $bore_stroke, $configuration, $emission_standard, $key_features, $common_problems, $is_published]);
+            $stmt = $db->prepare("INSERT INTO engines (title, slug, category_id, meta_title, meta_description, h1_title, content, excerpt, featured_image, years_produced, displacement, horsepower, torque, ecm_code, fuel_type, bore_stroke, configuration, emission_standard, key_features, common_problems, price, is_published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$title, $slug, $category_id ?: null, $meta_title, $meta_description, $h1_title, $content, $excerpt, $featured_image, $years_produced, $displacement, $horsepower, $torque, $ecm_code, $fuel_type, $bore_stroke, $configuration, $emission_standard, $key_features, $common_problems, $price, $is_published]);
             $id = $db->lastInsertId();
             $message = '<div class="alert alert-success">Engine page created!</div>';
         }
@@ -131,7 +132,7 @@ include __DIR__ . '/includes/header.php';
     </div>
 
 <?php else:
-    $engine = ['title'=>'','slug'=>'','category_id'=>0,'meta_title'=>'','meta_description'=>'','h1_title'=>'','content'=>'','excerpt'=>'','featured_image'=>'','years_produced'=>'','displacement'=>'','horsepower'=>'','torque'=>'','ecm_code'=>'','fuel_type'=>'Diesel','bore_stroke'=>'','configuration'=>'Inline 6-Cylinder','emission_standard'=>'','key_features'=>'','common_problems'=>'','is_published'=>1];
+    $engine = ['title'=>'','slug'=>'','category_id'=>0,'meta_title'=>'','meta_description'=>'','h1_title'=>'','content'=>'','excerpt'=>'','featured_image'=>'','years_produced'=>'','displacement'=>'','horsepower'=>'','torque'=>'','ecm_code'=>'','fuel_type'=>'Diesel','bore_stroke'=>'','configuration'=>'Inline 6-Cylinder','emission_standard'=>'','key_features'=>'','common_problems'=>'','price'=>16500,'is_published'=>1];
     if ($id > 0) {
         $stmt = $db->prepare("SELECT * FROM engines WHERE id = ?");
         $stmt->execute([$id]);
@@ -215,6 +216,10 @@ include __DIR__ . '/includes/header.php';
                             <div class="col-6 col-md-4">
                                 <label class="form-label small">Emission Standard</label>
                                 <input type="text" name="emission_standard" class="form-control form-control-sm" value="<?= sanitize($engine['emission_standard']) ?>" placeholder="e.g. EPA 2010">
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small fw-bold text-success">Price ($)</label>
+                                <input type="number" name="price" class="form-control form-control-sm" value="<?= $engine['price'] ?? 16500 ?>" step="0.01" min="0">
                             </div>
                         </div>
                     </div>

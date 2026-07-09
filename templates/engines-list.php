@@ -84,6 +84,12 @@ include __DIR__ . '/header.php';
                             <h3 class="h5 card-title">
                                 <a href="<?= SITE_URL ?>/engines/<?= $eng['slug'] ?>" class="text-decoration-none text-dark"><?= sanitize($eng['title']) ?></a>
                             </h3>
+                            <?php if (!empty($eng['price'])): ?>
+                            <div class="mb-2">
+                                <span class="fw-bold fs-5 text-success">$<?= number_format($eng['price'], 0) ?></span>
+                                <span class="badge bg-success ms-1">In Stock</span>
+                            </div>
+                            <?php endif; ?>
                             <p class="card-text text-muted small"><?= sanitize($eng['excerpt'] ?: substr(strip_tags($eng['content']), 0, 100)) ?>...</p>
                             <div class="mt-2">
                                 <?php if ($eng['years_produced']): ?><span class="badge bg-secondary me-1"><?= sanitize($eng['years_produced']) ?></span><?php endif; ?>

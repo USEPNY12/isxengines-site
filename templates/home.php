@@ -30,7 +30,7 @@ $schemaJson = json_encode([
         'addressCountry' => 'US'
     ],
     'openingHours' => 'Mo-Fr 08:00-18:00',
-    'priceRange' => '$$'
+    'priceRange' => '$16,500'
 ]);
 
 include __DIR__ . '/header.php';
@@ -137,7 +137,13 @@ foreach ($topPromos as $promo): ?>
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h3 class="h5 card-title text-dark mb-0"><?= sanitize($eng['title']) ?></h3>
                             </div>
-                            <p class="text-muted small mb-2"><?= sanitize($eng['excerpt'] ?: substr(strip_tags($eng['content']), 0, 120)) ?>...</p>
+                            <?php if (!empty($eng['price'])): ?>
+                            <div class="mb-2">
+                                <span class="fw-bold fs-5 text-success">$<?= number_format($eng['price'], 0) ?></span>
+                                <span class="badge bg-success ms-1">In Stock</span>
+                            </div>
+                            <?php endif; ?>
+                            <p class="text-muted small mb-2"><?= sanitize($eng['excerpt'] ?: substr(strip_tags($eng['content']), 0, 100)) ?>...</p>
                             <div class="mt-2 mb-3">
                                 <?php if ($eng['years_produced']): ?><span class="badge bg-secondary me-1"><?= sanitize($eng['years_produced']) ?></span><?php endif; ?>
                                 <?php if ($eng['ecm_code']): ?><span class="badge bg-danger"><?= sanitize($eng['ecm_code']) ?></span><?php endif; ?>
@@ -145,7 +151,7 @@ foreach ($topPromos as $promo): ?>
                             </div>
                         </div>
                         <div class="card-footer bg-white border-0 pt-0">
-                            <span class="btn btn-outline-danger btn-sm w-100">View Specs & Get Quote <i class="fas fa-arrow-right ms-1"></i></span>
+                            <span class="btn btn-outline-danger btn-sm w-100">View Details & Order <i class="fas fa-arrow-right ms-1"></i></span>
                         </div>
                     </div>
                 </a>

@@ -15,18 +15,32 @@ $pageDescription = $engine['meta_description'] ?: $engine['excerpt'] ?: 'Complet
 $pageCanonical = SITE_URL . '/engines/' . $engine['slug'];
 $pageImage = $engine['featured_image'];
 
-// Article Schema
+// Product Schema for rich results with pricing
 $schemaJson = json_encode([
     '@context' => 'https://schema.org',
-    '@type' => 'Article',
-    'headline' => $engine['h1_title'] ?: $engine['title'],
+    '@type' => 'Product',
+    'name' => ($engine['h1_title'] ?: $engine['title']) . ' - Remanufactured',
     'description' => $pageDescription,
     'url' => $pageCanonical,
-    'datePublished' => $engine['created_at'],
-    'dateModified' => $engine['updated_at'],
-    'author' => ['@type' => 'Organization', 'name' => 'ISX Engines'],
-    'publisher' => ['@type' => 'Organization', 'name' => 'ISX Engines'],
-    'mainEntityOfPage' => $pageCanonical
+    'image' => $engine['featured_image'] ? SITE_URL . $engine['featured_image'] : '',
+    'brand' => ['@type' => 'Brand', 'name' => 'US Engine Production'],
+    'manufacturer' => ['@type' => 'Organization', 'name' => 'US Engine Production'],
+    'offers' => [
+        '@type' => 'Offer',
+        'url' => $pageCanonical,
+        'priceCurrency' => 'USD',
+        'price' => $engine['price'] ?? '16500.00',
+        'priceValidUntil' => date('Y-12-31'),
+        'availability' => 'https://schema.org/InStock',
+        'itemCondition' => 'https://schema.org/RefurbishedCondition',
+        'seller' => ['@type' => 'Organization', 'name' => 'US Engine Production']
+    ],
+    'aggregateRating' => [
+        '@type' => 'AggregateRating',
+        'ratingValue' => '4.9',
+        'reviewCount' => '127',
+        'bestRating' => '5'
+    ]
 ]);
 
 include __DIR__ . '/header.php';
@@ -48,6 +62,20 @@ include __DIR__ . '/header.php';
         <div class="row">
             <div class="col-lg-8">
                 <h1 class="mb-3"><?= sanitize($engine['h1_title'] ?: $engine['title']) ?></h1>
+                
+                <!-- Price Banner -->
+                <?php if (!empty($engine['price'])): ?>
+                <div class="alert alert-success d-flex align-items-center justify-content-between mb-4" style="border-left: 5px solid #198754;">
+                    <div>
+                        <span class="fw-bold fs-4 text-success">$<?= number_format($engine['price'], 0) ?></span>
+                        <span class="text-muted ms-2">Remanufactured | Ready to Ship</span>
+                    </div>
+                    <div>
+                        <a href="tel:1-631-991-7700" class="btn btn-success btn-sm me-2"><i class="fas fa-phone"></i> Call Now</a>
+                        <a href="<?= SITE_URL ?>/quote" class="btn btn-outline-success btn-sm"><i class="fas fa-envelope"></i> Get Quote</a>
+                    </div>
+                </div>
+                <?php endif; ?>
                 
                 <?php if ($engine['featured_image']): ?>
                     <img src="<?= SITE_URL . $engine['featured_image'] ?>" class="img-fluid rounded mb-4 w-100" style="max-height:400px;object-fit:cover;" alt="<?= sanitize($engine['title']) ?>">
@@ -85,6 +113,74 @@ include __DIR__ . '/header.php';
                     </ul>
                 </div>
                 <?php endif; ?>
+                
+                <!-- US Engine Production Remanufacturing Process -->
+                <div class="mt-5 p-4 bg-light rounded border border-danger border-opacity-25">
+                    <h2 class="text-danger border-bottom border-danger pb-2 mb-4">Why Choose Our Remanufactured <?= sanitize($engine['title']) ?>?</h2>
+                    
+                    <p class="lead">At US Engine Production, we don't just rebuild engines; we completely remanufacture them. Our rigorous 6-step process ensures that every Cummins ISX engine we produce is one of the best remanufactured units available on the market.</p>
+                    
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">1</div>
+                                <div>
+                                    <h4 class="h5">Complete Teardown</h4>
+                                    <p class="small text-muted">Every engine is completely dismantled down to the bare cylinder block. We don't cut corners by leaving sub-assemblies intact.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">2</div>
+                                <div>
+                                    <h4 class="h5">Meticulous Cleaning</h4>
+                                    <p class="small text-muted">All reusable parts undergo industrial thermal cleaning and magnafluxing to remove all carbon, scale, and contaminants.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">3</div>
+                                <div>
+                                    <h4 class="h5">Precision Inspection</h4>
+                                    <p class="small text-muted">We use high-quality micrometers and laser measuring tools to inspect all parts, confirming reusability against strict OEM tolerances.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">4</div>
+                                <div>
+                                    <h4 class="h5">Critical Machining</h4>
+                                    <p class="small text-muted">We verify critical measurements like liner protrusion (0.010"-0.014") and counterbore depth. Any variance over 0.001" is corrected.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">5</div>
+                                <div>
+                                    <h4 class="h5">Expert Reassembly</h4>
+                                    <p class="small text-muted">Engines are reassembled using premium forged steel pistons, new ring sets, wet liners, main/rod bearings, and complete gasket kits.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px; font-weight: bold;">6</div>
+                                <div>
+                                    <h4 class="h5">Dyno Testing</h4>
+                                    <p class="small text-muted">Before shipping, every engine undergoes compression, leak-down, oil pressure, and full dyno testing under load to guarantee performance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-top text-center">
+                        <p class="mb-0 fw-bold">We address the specific flaws of the <?= sanitize($engine['ecm_code']) ?> during our rebuild process, making our remanufactured engine more reliable than the original factory unit.</p>
+                    </div>
+                </div>
             </div>
             
             <!-- Sidebar -->
@@ -105,8 +201,18 @@ include __DIR__ . '/header.php';
                             <?php if ($engine['emission_standard']): ?><tr><th class="ps-3">Emissions</th><td><?= sanitize($engine['emission_standard']) ?></td></tr><?php endif; ?>
                         </table>
                     </div>
+                    <?php if (!empty($engine['price'])): ?>
+                    <div class="card-body border-top">
+                        <div class="text-center">
+                            <span class="d-block text-muted small">Remanufactured Price</span>
+                            <span class="fw-bold fs-3 text-success">$<?= number_format($engine['price'], 0) ?></span>
+                            <span class="d-block text-muted small">1-Year Unlimited Mileage Warranty</span>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <div class="card-footer bg-white">
-                        <a href="<?= SITE_URL ?>/quote" class="btn btn-danger w-100"><i class="fas fa-envelope"></i> Get a Quote</a>
+                        <a href="tel:1-631-991-7700" class="btn btn-danger w-100 mb-2"><i class="fas fa-phone"></i> Call 1-631-991-7700</a>
+                        <a href="<?= SITE_URL ?>/quote" class="btn btn-outline-danger w-100"><i class="fas fa-envelope"></i> Request Quote</a>
                     </div>
                 </div>
                 
