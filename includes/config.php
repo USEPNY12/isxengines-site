@@ -3,10 +3,10 @@
  * ISX Engines - Database Configuration
  * Supports both Docker (env vars) and local deployment
  */
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 define('DB_NAME', getenv('DB_NAME') ?: 'isxengines_db');
-define('DB_USER', getenv('DB_USER') ?: 'isxengines_user');
-define('DB_PASS', getenv('DB_PASS') ?: 'ISXEngines2026!');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 define('SITE_URL', getenv('SITE_URL') ?: 'https://isxengines.com');
 define('SITE_NAME', 'ISX Engines - US Engine Production');
 define('ADMIN_PATH', '/admin');

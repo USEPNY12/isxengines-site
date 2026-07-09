@@ -7,9 +7,7 @@ services:
       - SITE_URL=https://isxengines.com
     volumes:
       - uploads:/var/www/html/assets/uploads
-      - mysql-data:/var/lib/mysql
     restart: unless-stopped
 
 volumes:
-  mysql-data:
   uploads:
