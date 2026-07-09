@@ -257,7 +257,7 @@ foreach ($topPromos as $promo): ?>
             <p class="text-muted">Expert troubleshooting, maintenance tips, and ISX engine news</p>
         </div>
         <?php
-        $posts = $db->query("SELECT * FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 3")->fetchAll();
+        $posts = $db->query("SELECT * FROM blog_posts WHERE is_published = 1 ORDER BY created_at DESC LIMIT 3")->fetchAll();
         if (!empty($posts)): ?>
         <div class="row g-4">
             <?php foreach ($posts as $post): ?>
