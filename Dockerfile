@@ -1,11 +1,12 @@
 FROM php:8.1-apache
 
-# Install PHP extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev \
+# Install PHP extensions and MariaDB
+RUN apt-get update && apt-get install -y \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    mariadb-server mariadb-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd \
-    && apt-get clean
+    && docker-php-ext-install gd mysqli pdo pdo_mysql \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules
 RUN a2enmod rewrite headers expires
@@ -20,6 +21,13 @@ COPY . /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && mkdir -p /var/www/html/assets/uploads \
-    && chmod -R 777 /var/www/html/assets/uploads
+    && chmod -R 777 /var/www/html/assets/uploads \
+    && chmod +x /var/www/html/docker-entrypoint.sh
+
+# Create MySQL data directory
+RUN mkdir -p /var/lib/mysql /run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
 EXPOSE 80
+
+ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
