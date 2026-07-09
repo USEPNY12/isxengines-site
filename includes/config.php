@@ -61,6 +61,16 @@ function sanitize($str) {
     return htmlspecialchars(trim($str), ENT_QUOTES, 'UTF-8');
 }
 
+function isLoggedIn() {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    return isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
+}
+
+function redirect($url) {
+    header('Location: ' . $url);
+    exit;
+}
+
 function generateSlug($str) {
     $str = strtolower(trim($str));
     $str = preg_replace('/[^a-z0-9-]/', '-', $str);

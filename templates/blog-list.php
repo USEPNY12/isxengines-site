@@ -8,8 +8,8 @@ $per_page = 9;
 $offset = ($page_num - 1) * $per_page;
 
 $total = $db->query("SELECT COUNT(*) FROM blog_posts WHERE is_published = 1")->fetchColumn();
-$posts = $db->prepare("SELECT * FROM blog_posts WHERE is_published = 1 ORDER BY created_at DESC LIMIT ? OFFSET ?");
-$posts->execute([$per_page, $offset]);
+$posts = $db->prepare("SELECT * FROM blog_posts WHERE is_published = 1 ORDER BY created_at DESC LIMIT " . intval($per_page) . " OFFSET " . intval($offset));
+$posts->execute();
 $posts = $posts->fetchAll();
 
 include __DIR__ . '/header.php';
